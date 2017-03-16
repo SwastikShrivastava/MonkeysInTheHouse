@@ -1,46 +1,96 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-var app = {
-    // Application Constructor
-    initialize: function() {
-        document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
-    },
+var gameSounds = ["earphones.mp3","theme.mp3","menu.mp3","click.mp3","shoot.mp3","die.mp3"]
+var narration = []
 
-    // deviceready Event Handler
-    //
-    // Bind any cordova events here. Common events are:
-    // 'pause', 'resume', etc.
-    onDeviceReady: function() {
-        this.receivedEvent('deviceready');
-    },
+$(document).ready(function() {
+    pluginEarphones(); 
 
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
 
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
 
-        console.log('Received Event: ' + id);
+    function clickSound(){
+        sounds.load([gameSounds[3]]);
+        sounds.whenLoaded = function(){
+            console.log("Click Sound");
+
+            var click = sounds[gameSounds[3]]
+
+            click.loop = false;
+            click.pan = 0;
+            click.volume = 0.7; 
+
+            click.play();
+           
+        }
     }
-};
 
-app.initialize();
+    function pluginEarphones(){
+        sounds.load([gameSounds[0]]);
+        sounds.whenLoaded = function(){
+            console.log("Plugin Sound");
+
+            var earphonesWarning = sounds[gameSounds[0]]
+
+            earphonesWarning.loop = false;
+            earphonesWarning.pan = 0;
+            earphonesWarning.volume = 0.7; 
+
+            earphonesWarning.play();
+           
+        }
+    }
+
+
+    $("#pluginEarphones").click(function(){
+        loadMenuTrack(); 
+        //clickSound();
+        $("#pluginEarphones").css("display","none")   
+    })
+
+    function loadMenuTrack(){
+        var earphonesWarning = sounds[gameSounds[0]]
+        earphonesWarning.pause();
+
+        sounds.load([gameSounds[1],gameSounds[2]]);
+        sounds.whenLoaded = function(){
+            console.log("Menu Sounds");
+            $(".menu").css("display","block");
+            var theme = sounds[gameSounds[1]]
+            var menuOption = sounds[gameSounds[2]]
+            
+            theme.loop = true;
+            theme.pan = 0;
+            theme.volume = 0.1; 
+
+            menuOption.loop = false;
+            menuOption.pan = 0;
+            menuOption.volume = 0.7; 
+
+            theme.play();
+            menuOption.play();
+            clickSound();
+        }
+    }
+
+    $("#tutorial").click(()=>{
+        var menuOption = sounds[gameSounds[2]]
+        menuOption.pause();
+        clickSound();
+        calibrate(0);
+    })
+
+    $("#startGame").click(()=>{
+        var menuOption = sounds[gameSounds[2]]
+        menuOption.pause();
+        clickSound();
+        calibrate(1);
+    })
+
+    function calibrate(a){
+        if (a=0) {
+
+        }
+        else{
+
+        }
+    }
+
+});
