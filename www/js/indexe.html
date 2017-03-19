@@ -1,0 +1,150 @@
+    <!DOCTYPE html>
+<html>
+  <head>
+    <title>Device Ready Example</title>
+
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+    var result = "no"                   //test case variable for result of roll orientation check
+    var yawActual = -1;                 // setting the yaw after proper roll orientation
+    var isRollOkay = false;             // is roll properly oriented
+    var permissibleError = 10;          // angle +- 10 , i.e.  left +-10 
+
+    // values from -180 to 180 degrees
+    var yaw_inter = -1                  
+    var pitch_inter = -1
+    var roll_inter = -1
+
+    // values from 0 to 360 degrees
+    var yaw_fixed = -1
+    var pitch_fixed = -1
+    var roll_fixed = -1
+
+    // to store permissibleError in left and right, i.e range in left and right
+    var yawRange = {
+        left : {
+                    val_one : -1,
+                    val_two : -1
+                },
+
+        right : {
+                    val_one : -1,
+                    val_two : -1
+            }
+    }
+
+    function onLoad() {
+        document.addEventListener("deviceready", onDeviceReady, false);
+    }
+
+    function onDeviceReady() {
+        alert("Device is Ready");
+        alert(navigator.fusion);
+        if (navigator.fusion) {
+            console.log('SensorFusion available.');
+            navigator.fusion.watchSensorFusion(function (result) {
+
+                var yaw_inter = result.eulerAngles.yaw*58.14;
+                var pitch_inter = result.eulerAngles.pitch*58.14;
+                var roll_inter = result.eulerAngles.roll*58.14;
+
+                var yaw_fixed = yaw_inter < 0 ? 360 + yaw_inter : yaw_inter;
+                var pitch_fixed = pitch_inter < 0 ? 360 + pitch_inter : pitch_inter;
+                var roll_fixed = roll_inter < 0 ? 360 + roll_inter : roll_inter;
+               
+                document.getElementById("accelerometer").innerHTML = "Yaw : "+ yaw_fixed + "<br>Pitch : " + pitch_fixed + "<br>Roll : " +  roll_fixed;
+                
+            }, function (err) {
+                console.log('error', err);
+            }, {
+                frequency: 500
+            });
+        }
+    }
+
+    function checkRoll(roll,yaw)            // to check roll || roll and yaw is set, pass roll_fixed and yaw_fixed
+    {
+        if(roll >= 230 && roll <= 320)      // angle of roll between 230 and 320 degrees .. i.e. probably facing toward the user
+        {
+            isRollOkay = true;
+            yawActual = yaw;
+        }
+        else
+        {
+            result = "Roll not yet Oriented";
+            resetRoll();
+            console.log(result)
+            return;
+
+        }
+
+    }
+
+    function resetRoll()                // to reset roll back to false , i.e. not properly oriented
+    {
+        isRollOkay = false;
+        yawActual = -1;
+    }
+
+
+    function updateSides()              // generating probable range of left and right and updating yawRange JSON 
+    {
+        if(isRollOkay)
+        {
+            yawRange.left.val_one = (yawActual - 90 - permissibleError)%360 < 0 ? 360 + (yawActual - 90 - permissibleError)%360 : (yawActual - 90 - permissibleError)%360;
+            yawRange.left.val_two = (yawActual - 90 + permissibleError)%360 < 0 ? 360 + (yawActual - 90 + permissibleError)%360 : (yawActual - 90 + permissibleError)%360;
+
+            yawRange.right.val_one = (yawActual + 90 - permissibleError)%360;
+            yawRange.right.val_two = (yawActual + 90 + permissibleError)%360;
+        }
+    }
+
+    function checkLeft(yaw)                         // to check for current yaw in left range
+    {
+        if(isRollOkay)
+        {
+            if((yawRange.left.val_one > yawRange.left.val_two) && (yaw >= yawRange.left.val_one && yaw <= 360 || yaw >= 0 && yaw <= yawRange.left.val_two))
+            {
+                return true;
+            }
+            else if((yawRange.left.val_one < yawRange.left.val_two) && (yaw >= yawRange.left.val_one && yaw <= yawRange.left.val_two))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    function checkRight(yaw)                        // to check for current yaw in right range
+    {
+        if(isRollOkay)
+        {
+            if((yawRange.right.val_one > yawRange.right.val_two) && (yaw >= yawRange.right.val_one && yaw <= 360 || yaw >= 0 && yaw <= yawRange.right.val_two))
+            {
+                return true;
+                
+            }
+            else if((yawRange.right.val_one < yawRange.right.val_two) && (yaw >= yawRange.right.val_one && yaw <= yawRange.right.val_two))
+            {
+                return true;
+                
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+   
+    </script>
+  </head>
+  <body onload="onLoad()">
+    
+    <div id="accelerometer">Waiting for accelerometer...</div>
+  </body>
+</html>
