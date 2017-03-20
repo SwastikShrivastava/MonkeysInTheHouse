@@ -4,8 +4,6 @@ var narration = ["failedCalibrate.mp3","calibrate.mp3","gameplay.mp3"]
 $(document).ready(function() {
     pluginEarphones(); 
 
-
-
     function clickSound(){
         sounds.load([gameSounds[3]]);
         sounds.whenLoaded = function(){
@@ -41,19 +39,17 @@ $(document).ready(function() {
 
 
     $("#pluginEarphones").click(function(){
-        loadMenuTrack(); 
+        storyStart(); 
         $("#pluginEarphones").css("display","none")   
     })
 
-    function loadMenuTrack(){
+    function storyStart(){
         var earphonesWarning = sounds[gameSounds[0]]
         earphonesWarning.pause();
 
         sounds.load([gameSounds[2]]);
         sounds.whenLoaded = function(){
-            console.log("Menu Sounds");
-            $(".menu").css("display","block");
-            
+            console.log("story Sounds");            
             var menuOption = sounds[gameSounds[2]] 
 
             menuOption.loop = false;
@@ -61,84 +57,106 @@ $(document).ready(function() {
             menuOption.volume = 0.7; 
 
             menuOption.play();
+
+            setTimeout(function(){
+                $("#calibrate").css("display","block");
+            },10000)
             
-            sounds.load([gameSounds[1]]);
-            sounds.whenLoaded = function(){
-                console.log("Theme Sound");
-
-                var theme = sounds[gameSounds[1]]
-
-                theme.loop = true;
-                theme.pan = 0;
-                theme.volume = 0.3;
-
-                theme.play();
-               
-            }
 
         }
     }
 
-    $("#tutorial").click(()=>{
-        var menuOption = sounds[gameSounds[2]]
-        menuOption.pause();
-        //clickSound();
-        calibrate(0);
+    $("#calibrate").click(function(){
+        console.log("Calibration started")
+        checkAndGetRoll(1);
     })
-
-    $("#startGame").click(()=>{
-        var menuOption = sounds[gameSounds[2]]
-        menuOption.pause();
-        calibrate(1);
-    })
-
-    function calibrate(a){
-        $("#calibrate").css("display","block");
-        sounds.load([narration[1]]);
-        sounds.whenLoaded = function(){
-            console.log("Calibrate Sound");
-
-            var calibrate = sounds[narration[1]]
-
-            calibrate.loop = false;
-            calibrate.pan = 0;
-            calibrate.volume = 0.7; 
-
-            calibrate.play();
-           
-        }
-       
-    }
-
-     $("#calibrate").click(function(){
-            console.log("Calibration started")
-            checkAndGetRoll(1);
-        })
 
     function proceed(choice){
         $("#calibrate").css("display","none");
-        if (choice==1) {
-            startGame();
-        }
-        else{
+        sounds.load([gameSounds[2]]);
+        sounds.whenLoaded = function(){
+            console.log("Calibrated");            
+            var menuOption = sounds[gameSounds[2]] 
 
-        }   
+            menuOption.loop = false;
+            menuOption.pan = 0;
+            menuOption.volume = 0.7; 
+
+            menuOption.play();
+
+            setTimeout(function(){
+                startTut()
+            },1000)    
+
+        }
+    }
+    
+    var tutcount = 0;
+    function startTut(){
+        $("#tutshoot").css("display","block");
+        if (tutcount==0) {
+            sounds.load([gameSounds[2]]);
+            sounds.whenLoaded = function(){
+                console.log("Lean Left to shoot the left Monkey");            
+                var menuOption = sounds[gameSounds[2]] 
+
+                menuOption.loop = false;
+                menuOption.pan = -0.4;
+                menuOption.volume = 0.7; 
+
+                menuOption.play();
+            }
+
+        }
+        else
+        {
+           sounds.load([gameSounds[2]]);
+            sounds.whenLoaded = function(){
+                console.log("Lean right to shoot the left Monkey");            
+                var menuOption = sounds[gameSounds[2]] 
+
+                menuOption.loop = false;
+                menuOption.pan = 0.4;
+                menuOption.volume = 0.7; 
+
+                menuOption.play();
+            } 
+        }
+        
+        
+        $("#tutshoot").click(function(){
+            if (tutcount==0) {
+                if(checkLeft(localStorage.yaw))
+                {
+                    tutcount++;
+                    startTut()
+                }
+            }
+            else
+            {
+               if(checkRight(localStorage.yaw))
+                {
+                    sounds.load([gameSounds[2]]);
+                    sounds.whenLoaded = function(){
+                        console.log("You are ready to go commrade");            
+                        var menuOption = sounds[gameSounds[2]] 
+
+                        menuOption.loop = false;
+                        menuOption.pan = 0;
+                        menuOption.volume = 0.7; 
+
+                        menuOption.play();
+
+                        startGame()
+
+                    } 
+                } 
+            }
+        }
+
     }
 
     function startGame(){
-        sounds.load([narration[2]]);
-        sounds.whenLoaded = function(){
-            console.log("gameplay Sound");
-
-            var gameplay = sounds[narration[2]]
-
-            gameplay.loop = false;
-            gameplay.pan = 0;
-            gameplay.volume = 0.7; 
-
-            gameplay.play();
-           
-        }
 
         setTimeout(function(){
             var answered = false;
