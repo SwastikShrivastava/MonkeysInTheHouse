@@ -1,11 +1,18 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="io.cordova.hellocordova" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>HelloCordova</name>
+    <feature name="Whitelist">
+        <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="SensorFusion">
+        <param name="android-package" value="org.hitlabnz.sensor_fusion_demo.SensorFusionPlugin" />
+    </feature>
+    <name>Monkeys In The House</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+        A phone game for Visually Impaired Person.
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
-        Apache Cordova Team
+    <author email="swastikshrivastava0@gmail.com" href="http://swastikshrivastava.github.com">
+        BeerBakers
     </author>
     <content src="index.html" />
     <access origin="*" />
@@ -17,11 +24,4 @@
     <allow-intent href="geo:*" />
     <allow-intent href="market:*" />
     <preference name="loglevel" value="DEBUG" />
-    <feature name="Whitelist">
-        <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
-        <param name="onload" value="true" />
-    </feature>
-    <feature name="SensorFusion">
-        <param name="android-package" value="org.hitlabnz.sensor_fusion_demo.SensorFusionPlugin" />
-    </feature>
 </widget>
