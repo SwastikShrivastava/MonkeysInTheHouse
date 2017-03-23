@@ -1,26 +1,8 @@
-var gameSounds = ["earphones.mp3","theme.mp3","menu.mp3","click.mp3","shoot.mp3","die.mp3","monkey.mp3"]
-var narration = ["failedCalibrate.mp3","calibrate.mp3","gameplay.mp3"]
+var gameSounds = ["intro.mp3","theme.mp3","story.mp3","click.mp3","shotgun.mp3","die.mp3","monkey.mp3","monkey1.mp3","monkey2.mp3"]
+var narration = ["calibration.mp3","tut.mp3"]
 
 $(document).ready(function() {
-    pluginEarphones(); 
-
-
-
-    function clickSound(){
-        sounds.load([gameSounds[3]]);
-        sounds.whenLoaded = function(){
-            console.log("Click Sound");
-
-            var click = sounds[gameSounds[3]]
-
-            click.loop = false;
-            click.pan = 0;
-            click.volume = 0.7; 
-
-            click.play();
-           
-        }
-    }
+    pluginEarphones();
 
     function pluginEarphones(){
 
@@ -41,149 +23,267 @@ $(document).ready(function() {
 
 
     $("#pluginEarphones").click(function(){
-        loadMenuTrack(); 
+        storyStart(); 
+        navigator.vibrate(650);
         $("#pluginEarphones").css("display","none")   
     })
 
-    function loadMenuTrack(){
+    function storyStart(){
         var earphonesWarning = sounds[gameSounds[0]]
         earphonesWarning.pause();
 
-        sounds.load([gameSounds[1],gameSounds[2]]);
+        sounds.load([gameSounds[2]]);
         sounds.whenLoaded = function(){
-            console.log("Menu Sounds");
-            $(".menu").css("display","block");
-            var theme = sounds[gameSounds[1]]
-            var menuOption = sounds[gameSounds[2]]
-            
-            theme.loop = true;
-            theme.pan = 0;
-            theme.volume = 0.1; 
+            console.log("story Sounds");            
+            var menuOption = sounds[gameSounds[2]] 
 
             menuOption.loop = false;
             menuOption.pan = 0;
             menuOption.volume = 0.7; 
 
-            theme.play();
             menuOption.play();
-            //clickSound();
+
+            setTimeout(function(){
+                $("#calibrate").css("display","block");
+            },30000)
+            
         }
     }
 
-    $("#tutorial").click(()=>{
-        var menuOption = sounds[gameSounds[2]]
-        menuOption.pause();
-        //clickSound();
-        calibrate(0);
+    $("#calibrate").click(function(){
+        console.log("Calibration started")
+        navigator.vibrate(650);
+        checkAndGetRoll(1);
     })
-
-    $("#startGame").click(()=>{
-        var menuOption = sounds[gameSounds[2]]
-        menuOption.pause();
-        calibrate(1);
-    })
-
-    function calibrate(a){
-        $("#calibrate").css("display","block");
-        sounds.load([narration[1]]);
-        sounds.whenLoaded = function(){
-            console.log("Calibrate Sound");
-
-            var calibrate = sounds[narration[1]]
-
-            calibrate.loop = false;
-            calibrate.pan = 0;
-            calibrate.volume = 0.7; 
-
-            calibrate.play();
-           
-        }
-       
-    }
-
-     $("#calibrate").click(function(){
-            console.log("Calibration started")
-            checkAndGetRoll(1);
-        })
 
     function proceed(choice){
         $("#calibrate").css("display","none");
-        if (choice==1) {
-            startGame();
-        }
-        else{
+        sounds.load([narration[0]]);
+        sounds.whenLoaded = function(){
+            console.log("Calibration successfull");            
+            var menuOption = sounds[narration[0]] 
 
-        }   
+            menuOption.loop = false;
+            menuOption.pan = 0;
+            menuOption.volume = 0.7; 
+
+            menuOption.play();
+
+            var p = document.getElementById("myAudio3");
+            p.play(); 
+            setTimeout(function(){
+                sounds.load([gameSounds[7]]);
+	            sounds.whenLoaded = function(){
+	                console.log("Left Monkey");            
+	                var menuOption = sounds[gameSounds[7]] 
+
+	                menuOption.loop = false;
+	                menuOption.pan = -0.6;
+	                menuOption.volume = 0.8; 
+
+	                menuOption.play();
+
+	                setTimeout(function(){
+	                	startTut()
+	                },1500)
+	            } 
+            },1500)    
+
+        }
+    }
+    
+    var tutcount = 0;
+    function startTut(){
+        $("#tutshoot").css("display","block");
+        if (tutcount==0) {
+            sounds.load([narration[1]]);
+            sounds.whenLoaded = function(){
+                console.log("Lean Left to shoot the left Monkey");            
+                var menuOption = sounds[narration[1]] 
+
+                menuOption.loop = false;
+                menuOption.pan = -0.6;
+                menuOption.volume = 0.9; 
+
+                menuOption.play();
+            }
+
+        }
+        else
+        {
+           sounds.load([gameSounds[3]]);
+            sounds.whenLoaded = function(){
+                console.log("Lean right to shoot the left Monkey");            
+                var menuOption = sounds[gameSounds[3]] 
+
+                menuOption.loop = false;
+                menuOption.pan = 0.6;
+                menuOption.volume = 0.7; 
+
+                menuOption.play();
+            } 
+        }
+        
+        
+        $("#tutshoot").click(function(){
+            var x = document.getElementById("myAudio");
+            x.play(); 
+            if (tutcount==0) {
+                if(checkLeft(localStorage.yaw))
+                {
+                    navigator.vibrate(650);
+                    var o = document.getElementById("myAudio2");
+                    o.play(); 
+                    setTimeout(function(){
+                        startGame()
+                    },5000)       
+                }
+            }
+        });
+
     }
 
+    var Bullets;
+    var Shots_Hit;
+    var d = new Date();
+    var Start_Time = 0;
+    var End_Time = 0;
+
     function startGame(){
-        sounds.load([narration[2]]);
-        sounds.whenLoaded = function(){
-            console.log("gameplay Sound");
 
-            var gameplay = sounds[narration[2]]
+        Start_Time = d.getTime(); //milliseconds
 
-            gameplay.loop = false;
-            gameplay.pan = 0;
-            gameplay.volume = 0.7; 
-
-            gameplay.play();
-           
-        }
+        Bullets = 5;
+        Shots_Hit = 0;
 
         setTimeout(function(){
-            $("#shoot").css("display","block");
-            generateSound();
-            $("#shoot").click(function(){
-                if (localStorage.answer=="left") {
-                    if(checkLeft(localStorage.yaw))
+            var answered = false;
+            $("#shoot").css("display","block");  
+                generateSound();
+                $("#shoot").click(function(){
+                    if(Bullets!=0)
                     {
-                        alert("Sahi Left")
-                        generateSound();
+                        var x = document.getElementById("myAudio");
+                        x.play(); 
+                        
+
+                        Bullets--;
+                    
+                        if (localStorage.answer=="left") {
+                            if(checkLeft(localStorage.yaw))
+                            {
+                                //alert("Sahi Left")
+                                navigator.vibrate(650);
+                                Shots_Hit++;
+                                setTimeout(function(){
+                                    var z = document.getElementById("myAudio1");
+                                    z.play(); 
+                                },500)
+                                setTimeout(function(){
+                                    generateSound();
+                                },3300)
+                                   
+                            }
+                        }
+                        else if (localStorage.answer=="right") {
+                            if(checkRight(localStorage.yaw))
+                            {
+                                //alert("Sahi Right")
+                                navigator.vibrate(650);
+                                Shots_Hit++;
+                                setTimeout(function(){
+                                    generateSound();
+                                },3300)
+                                setTimeout(function(){
+                                    var z = document.getElementById("myAudio1");
+                                    z.play(); 
+                                },500)
+                            }   
+                        }
+                        else
+                        {
+                           if(checkCenter(localStorage.yaw))
+                            {
+                                //alert("Sahi Center")
+                                navigator.vibrate(650);
+                                Shots_Hit++;
+                                setTimeout(function(){
+                                    generateSound();
+                                },3300)
+                                setTimeout(function(){
+                                    var z = document.getElementById("myAudio1");
+                                    z.play(); 
+                                },500)
+                            }   
+                        }
                     }
-                }
-                else if (localStorage.answer=="right") {
-                    if(checkRight(localStorage.yaw))
+                    else
                     {
-                        alert("Sahi Right")
-                        generateSound();
-                    }   
-                }
-                else
-                {
-                   if(checkCenter(localStorage.yaw))
-                    {
-                        alert("Sahi Center")
-                        generateSound();
-                    }   
-                }
-            })
+                        //game end
+                        End_Time = d.getTime();
+                        GameEnd();
+                    }
+                
+                
+                })
+
         },4000)
     }
 
-    function generateSound(){
-        sounds.load([gameSounds[6]]);
-        sounds.whenLoaded = function(){
-            alert("Calibrate Sound");
+    function GameEnd()
+    {
+        alert("Game Ended")
+        navigator.vibrate(1000);
+        var ch = new SpeechSynthesisUtterance("Game Has ended dude");
+        window.speechSynthesis.speak(ch);
+        var settings = 
+        {
+          "async": true,
+          "crossDomain": true,
+          "url": "http://localhost:8080/result",
+          "method": "POST",
+          "headers": 
+          {
+            "Shots" : Shots_Hit,
+            "Time" : End_Time - Start_Time,  // milliseconds
+            "content-type": "application/x-www-form-urlencoded"
+           }
+        }
 
-            var monkey = sounds[gameSounds[6]]
+        $.ajax(settings).done(function (response) 
+        {
+         
+          //response JSON contains accuracy, world rank , details of shots
+
+        });
+    }
+
+
+    function generateSound(){
+        var soundIndex = Math.floor(Math.random() * (8 - 6 + 1)) + 6;
+        sounds.load([gameSounds[soundIndex]]);
+        sounds.whenLoaded = function(){
+            //alert("Sound Generated");
+
+            var monkey = sounds[gameSounds[soundIndex]]
             localStorage.pan = Math.random() * (1 - (-1)) -1;
             monkey.loop = false;
             monkey.pan = localStorage.pan;
             monkey.volume = Math.random() * (0.7 - (-0)) +0; 
 
             monkey.play();
+
+            if (localStorage.pan<-0.2) {
+                localStorage.answer = "left";
+            }
+            else if(localStorage.pan>0.2)
+            {
+                localStorage.answer = "right";
+            }
+            else{
+                localStorage.answer = "center";
+            }
            
-        }
-        if (localStorage.pan<-0.2) {
-            localStorage.answer = "left";
-        }
-        else if(localStorage.pan>0.2)
-        {
-            localStorage.answer = "right";
-        }
-        else{
-            localStorage.answer = "center";
         }
     }
 
@@ -226,11 +326,12 @@ $(document).ready(function() {
     
 
     function onDeviceReady() {
-        alert("Device is Ready");
+        //alert("Device is Ready");
+        console.log(navigator.vibrate);
     }
     function checkAndGetRoll(choice){
         if (navigator.fusion) {
-            alert('SensorFusion available.');
+            //alert('SensorFusion available.');
             navigator.fusion.watchSensorFusion(function (result) {
 
                 yaw_inter = result.eulerAngles.yaw*58.14;
@@ -266,7 +367,7 @@ $(document).ready(function() {
                 localStorage.init_yaw = yaw;
                 updateSides();
                 proceed(choice);
-                alert("Roll Set hai")
+                //alert("Roll Set hai")
             }
             else
             {

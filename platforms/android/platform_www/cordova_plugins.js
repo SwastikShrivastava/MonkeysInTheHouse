@@ -23,13 +23,23 @@ module.exports = [
         "clobbers": [
             "navigator.fusion"
         ]
+    },
+    {
+        "id": "cordova-plugin-vibration.notification",
+        "file": "plugins/cordova-plugin-vibration/www/vibration.js",
+        "pluginId": "cordova-plugin-vibration",
+        "merges": [
+            "navigator.notification",
+            "navigator"
+        ]
     }
 ];
 module.exports.metadata = 
 // TOP OF METADATA
 {
     "cordova-plugin-whitelist": "1.3.2",
-    "cordova-plugin-device-sensor-fusion": "0.0.3"
+    "cordova-plugin-device-sensor-fusion": "0.0.3",
+    "cordova-plugin-vibration": "2.1.4"
 };
 // BOTTOM OF METADATA
 });

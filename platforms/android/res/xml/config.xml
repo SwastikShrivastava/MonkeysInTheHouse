@@ -7,6 +7,9 @@
     <feature name="SensorFusion">
         <param name="android-package" value="org.hitlabnz.sensor_fusion_demo.SensorFusionPlugin" />
     </feature>
+    <feature name="Vibration">
+        <param name="android-package" value="org.apache.cordova.vibration.Vibration" />
+    </feature>
     <name>Monkeys In The House</name>
     <description>
         A phone game for Visually Impaired Person.
